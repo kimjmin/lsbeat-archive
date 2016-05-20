@@ -1,0 +1,4 @@
+beat_name: lsbeat
+beat_url: 'https://github.com/kimjmin'
+beat_repo: 'github.com/kimjmin'
+beat_description: Sends lsbeat metrics to Logstash or directly to Elasticsearch.
