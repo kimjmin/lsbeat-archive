@@ -2,6 +2,7 @@ package beater
 
 import (
 	"fmt"
+	"io/ioutil"
 	"time"
 
 	"github.com/elastic/beats/libbeat/beat"
@@ -43,7 +44,7 @@ func (bt *Lsbeat) Setup(b *beat.Beat) error {
 
 	// Setting default period if not set
 	if bt.beatConfig.Lsbeat.Period == "" {
-		bt.beatConfig.Lsbeat.Period = "1s"
+		bt.beatConfig.Lsbeat.Period = "1m"
 	}
 
 	bt.client = b.Publisher.Connect()
@@ -86,4 +87,17 @@ func (bt *Lsbeat) Cleanup(b *beat.Beat) error {
 
 func (bt *Lsbeat) Stop() {
 	close(bt.done)
+}
+
+//scan dirs and files
+func listDir(dirFile string) {
+	files, _ := ioutil.ReadDir(dirFile)
+	for _, f := range files {
+		t := f.ModTime()
+		//fmt.Printf("%T\n", t)
+		fmt.Println(f.Name(), dirFile+"/"+f.Name(), f.IsDir(), t, f.Size())
+		if f.IsDir() {
+			listDir(dirFile + "/" + f.Name())
+		}
+	}
 }
