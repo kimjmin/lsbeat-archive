@@ -76,6 +76,9 @@ func (bt *Lsbeat) Run(b *beat.Beat) error {
 			"counter":    counter,
 		}
 		bt.client.PublishEvent(event)
+
+		listDir("/Users/kimjmin/golang/src")
+
 		logp.Info("Event sent")
 		counter++
 	}
