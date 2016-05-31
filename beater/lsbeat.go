@@ -70,14 +70,14 @@ func (bt *Lsbeat) Run(b *beat.Beat) error {
 		case <-ticker.C:
 		}
 
-		event := common.MapStr{
-			"@timestamp": common.Time(time.Now()),
-			"type":       b.Name,
-			"counter":    counter,
-		}
-		bt.client.PublishEvent(event)
+		listDir("/Users/kimjmin/golang/src", bt, b, counter)
 
-		listDir("/Users/kimjmin/golang/src")
+		// event := common.MapStr{
+		// 	"@timestamp": common.Time(time.Now()),
+		// 	"type":       b.Name,
+		// 	"counter":    counter,
+		// }
+		// bt.client.PublishEvent(event)
 
 		logp.Info("Event sent")
 		counter++
@@ -93,14 +93,26 @@ func (bt *Lsbeat) Stop() {
 }
 
 //scan dirs and files
-func listDir(dirFile string) {
+func listDir(dirFile string, bt *Lsbeat, b *beat.Beat, counter int) {
 	files, _ := ioutil.ReadDir(dirFile)
 	for _, f := range files {
 		t := f.ModTime()
 		//fmt.Printf("%T\n", t)
-		fmt.Println(f.Name(), dirFile+"/"+f.Name(), f.IsDir(), t, f.Size())
+		// fmt.Println(f.Name(), dirFile+"/"+f.Name(), f.IsDir(), t, f.Size())
+		event := common.MapStr{
+			"@timestamp":  common.Time(time.Now()),
+			"type":        b.Name,
+			"counter":     counter,
+			"modTime":     t,
+			"filename":    f.Name(),
+			"fullname":    dirFile + "/" + f.Name(),
+			"isDirectory": f.IsDir(),
+			"fileSize":    f.Size(),
+		}
+		bt.client.PublishEvent(event)
+
 		if f.IsDir() {
-			listDir(dirFile + "/" + f.Name())
+			listDir(dirFile+"/"+f.Name(), bt, b, counter)
 		}
 	}
 }
