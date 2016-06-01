@@ -27,6 +27,21 @@
         "counter": {
           "type": "integer"
         },
+        "filename": {
+          "index": "analyzed",
+          "norms": {
+            "enabled": false
+          },
+          "type": "string"
+        },
+        "fullname": {
+          "ignore_above": 1024,
+          "index": "not_analyzed",
+          "type": "string"
+        },
+        "modTime": {
+          "type": "date"
+        },
         "type": {
           "ignore_above": 1024,
           "index": "not_analyzed",

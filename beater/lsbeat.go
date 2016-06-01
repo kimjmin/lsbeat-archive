@@ -14,10 +14,12 @@ import (
 )
 
 type Lsbeat struct {
-	beatConfig *config.Config
-	done       chan struct{}
-	period     time.Duration
-	client     publisher.Client
+	beatConfig   *config.Config
+	done         chan struct{}
+	period       time.Duration
+	client       publisher.Client
+	path         string
+	lasIndexTime time.Time
 }
 
 // Creates beater
@@ -44,8 +46,14 @@ func (bt *Lsbeat) Setup(b *beat.Beat) error {
 
 	// Setting default period if not set
 	if bt.beatConfig.Lsbeat.Period == "" {
-		bt.beatConfig.Lsbeat.Period = "1m"
+		bt.beatConfig.Lsbeat.Period = "1s"
 	}
+
+	// Setting default Path if not set.
+	if bt.beatConfig.Lsbeat.Path == "" {
+		bt.beatConfig.Lsbeat.Path = "."
+	}
+	bt.path = bt.beatConfig.Lsbeat.Path
 
 	bt.client = b.Publisher.Connect()
 
@@ -63,15 +71,15 @@ func (bt *Lsbeat) Run(b *beat.Beat) error {
 
 	ticker := time.NewTicker(bt.period)
 	counter := 1
+	bt.lasIndexTime = time.Now()
 	for {
+		listDir(bt.path, bt, b, counter)
+		bt.lasIndexTime = time.Now()
 		select {
 		case <-bt.done:
 			return nil
 		case <-ticker.C:
 		}
-
-		listDir("/Users/kimjmin/golang/src", bt, b, counter)
-
 		// event := common.MapStr{
 		// 	"@timestamp": common.Time(time.Now()),
 		// 	"type":       b.Name,
@@ -99,6 +107,7 @@ func listDir(dirFile string, bt *Lsbeat, b *beat.Beat, counter int) {
 		t := f.ModTime()
 		//fmt.Printf("%T\n", t)
 		// fmt.Println(f.Name(), dirFile+"/"+f.Name(), f.IsDir(), t, f.Size())
+
 		event := common.MapStr{
 			"@timestamp":  common.Time(time.Now()),
 			"type":        b.Name,
@@ -109,7 +118,19 @@ func listDir(dirFile string, bt *Lsbeat, b *beat.Beat, counter int) {
 			"isDirectory": f.IsDir(),
 			"fileSize":    f.Size(),
 		}
-		bt.client.PublishEvent(event)
+		if counter == 1 {
+			bt.client.PublishEvent(event)
+		} else {
+			if t.After(bt.lasIndexTime) {
+				bt.client.PublishEvent(event)
+			}
+		}
+
+		/*TODO
+		set uniq ID for full path.
+		update only recent file. Time check
+		set path on config.
+		*/
 
 		if f.IsDir() {
 			listDir(dirFile+"/"+f.Name(), bt, b, counter)

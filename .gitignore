@@ -1,10 +1,11 @@
 /.idea
 /vendor
 /build
+/logs
 
 .DS_Store
 /lsbeat
 /lsbeat.test
 *.pyc
 
-
+/lsbeat.yml

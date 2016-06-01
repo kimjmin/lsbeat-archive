@@ -23,6 +23,17 @@
         "counter": {
           "type": "integer"
         },
+        "filename": {
+          "norms": false,
+          "type": "text"
+        },
+        "fullname": {
+          "ignore_above": 1024,
+          "type": "keyword"
+        },
+        "modTime": {
+          "type": "date"
+        },
         "type": {
           "ignore_above": 1024,
           "type": "keyword"

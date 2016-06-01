@@ -4,4 +4,6 @@
 
 lsbeat:
   # Defines how often an event is sent to the output
-  period: 1s
+  period: 10s
+  # root path of files and directories list.
+  path: "."

@@ -40,6 +40,22 @@ lsbeat:
       required: true
       description: >
         PLEASE UPDATE DOCUMENTATION
+    - name: modTime
+      type: date
+      required: true
+      description: >
+        Last modified time of the file or directory
+    - name: filename
+      type: text
+      required: true
+      description: >
+        File and directory name
+    - name: fullname
+      type: keyword
+      required: true
+      index: not_analyzed
+      description: >
+        File and directory name
 
 sections:
   - ["env", "Common"]
