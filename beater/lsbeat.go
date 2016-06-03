@@ -18,8 +18,8 @@ type Lsbeat struct {
 	done         chan struct{}
 	period       time.Duration
 	client       publisher.Client
-	path         string
-	lasIndexTime time.Time
+	path         string    //root 디렉토리
+	lasIndexTime time.Time //가장 마지막에 검색한 시간
 }
 
 // Creates beater
@@ -125,12 +125,6 @@ func listDir(dirFile string, bt *Lsbeat, b *beat.Beat, counter int) {
 				bt.client.PublishEvent(event)
 			}
 		}
-
-		/*TODO
-		set uniq ID for full path.
-		update only recent file. Time check
-		set path on config.
-		*/
 
 		if f.IsDir() {
 			listDir(dirFile+"/"+f.Name(), bt, b, counter)
